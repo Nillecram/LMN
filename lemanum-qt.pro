@@ -23,6 +23,17 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 #    BOOST_INCLUDE_PATH, BOOST_LIB_PATH, BDB_INCLUDE_PATH,
 #    BDB_LIB_PATH, OPENSSL_INCLUDE_PATH and OPENSSL_LIB_PATH respectively
 
+#export BOOST_INCLUDE_PATH=/usr/local/Cellar/boost\@1.55/1.55.0_1/include
+#export BOOST_LIB_PATH=/usr/local/Cellar/boost\@1.55/1.55.0_1/lib
+#export BDB_INCLUDE_PATH=/usr/local/Cellar/berkeley-db4/4.8.30/include
+#export BDB_LIB_SUFFIX=-4.8
+#export BDB_LIB_PATH=/usr/local/Cellar/berkeley-db4/4.8.30/lib
+OPENSSL_INCLUDE_PATH = /usr/local/Cellar/openssl/1.0.2m/include
+OPENSSL_LIB_PATH = /usr/local/Cellar/openssl/1.0.2m/lib
+MINIUPNPC_INCLUDE_PATH = /usr/local/Cellar/miniupnpc/2.0.20170509/include
+MINIUPNPC_LIB_PATH = /usr/local/Cellar/miniupnpc/2.0.20170509/lib
+
+
 OBJECTS_DIR = build
 MOC_DIR = build
 UI_DIR = build
@@ -30,7 +41,7 @@ UI_DIR = build
 # use: qmake "RELEASE=1"
 contains(RELEASE, 1) {
     # Mac: compile for maximum compatibility (10.5, 32-bit)
-    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.5 -arch x86_64 -isysroot /Developer/SDKs/MacOSX10.5.sdk
+    macx:QMAKE_CXXFLAGS += -mmacosx-version-min=10.9 -arch x86_64 -isysroot /Developer/SDKs/MacOSX10.13.sdk -stdlib=libc++
 
     !windows:!macx {
         # Linux: static link
@@ -40,7 +51,7 @@ contains(RELEASE, 1) {
 
 !win32 {
 # for extra security against potential buffer overflows: enable GCCs Stack Smashing Protection
-QMAKE_CXXFLAGS *= -fstack-protector-all --param ssp-buffer-size=1
+QMAKE_CXXFLAGS *= -fstack-protector-all --param ssp-buffer-size=1 
 QMAKE_LFLAGS *= -fstack-protector-all --param ssp-buffer-size=1
 # We need to exclude this for Windows cross compile with MinGW 4.2.x, as it will result in a non-working executable!
 # This can be enabled for Windows, when we switch to MinGW >= 4.4.x.
@@ -373,7 +384,7 @@ isEmpty(BOOST_THREAD_LIB_SUFFIX) {
 }
 
 isEmpty(BDB_LIB_PATH) {
-    macx:BDB_LIB_PATH = /opt/local/lib/db48
+    macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/lib
 }
 
 isEmpty(BDB_LIB_SUFFIX) {
@@ -381,15 +392,15 @@ isEmpty(BDB_LIB_SUFFIX) {
 }
 
 isEmpty(BDB_INCLUDE_PATH) {
-    macx:BDB_INCLUDE_PATH = /opt/local/include/db48
+    macx:BDB_INCLUDE_PATH = /usr/local/Cellar/berkeley-db4/4.8.30/include
 }
 
 isEmpty(BOOST_LIB_PATH) {
-    macx:BOOST_LIB_PATH = /opt/local/lib
+    macx:BOOST_LIB_PATH = /usr/local/Cellar/boost@1.55/1.55.0_1/lib
 }
 
 isEmpty(BOOST_INCLUDE_PATH) {
-    macx:BOOST_INCLUDE_PATH = /opt/local/include
+    macx:BOOST_INCLUDE_PATH = /usr/local/Cellar/boost\@1.55/1.55.0_1/include
 }
 
 windows:DEFINES += WIN32
@@ -408,7 +419,7 @@ windows:!contains(MINGW_THREAD_BUGFIX, 0) {
 
 macx:HEADERS += src/qt/macdockiconhandler.h src/qt/macnotificationhandler.h
 macx:OBJECTIVE_SOURCES += src/qt/macdockiconhandler.mm src/qt/macnotificationhandler.mm
-macx:LIBS += -framework Foundation -framework ApplicationServices -framework AppKit
+macx:LIBS += -framework Foundation -framework ApplicationServices -framework AppKit -framework CoreFoundation -stdlib=libc++
 macx:DEFINES += MAC_OSX MSG_NOSIGNAL=0
 macx:ICON = src/qt/res/icons/lemanum.icns
 macx:TARGET = "Lemanum-Qt"
@@ -416,6 +427,7 @@ macx:QMAKE_CFLAGS_THREAD += -pthread
 macx:QMAKE_LFLAGS_THREAD += -pthread
 macx:QMAKE_CXXFLAGS_THREAD += -pthread
 macx:QMAKE_INFO_PLIST = share/qt/Info.plist
+macx:INCLUDEPATH += -stdlib=libc++
 
 # Set libraries and includes at end, to use platform-defined defaults if not overridden
 INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$QRENCODE_INCLUDE_PATH
